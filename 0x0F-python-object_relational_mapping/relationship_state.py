@@ -1,18 +1,27 @@
 #!/usr/bin/python3
-"""Module model_state
-Defines a State class that will be written to a database"""
-from sqlalchemy import Column, String, Integer
-from sqlalchemy.orm import declarative_base, relationship
+"""
+This script defines a State class and
+a Base class to work with MySQLAlchemy ORM.
+"""
+
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 
 class State(Base):
-    """Class State
-    Inherits from class Base to define what the table State
-    looks like in a database.
+    """State class
+
+    Attributes:
+        __tablename__ (str): The table name of the class
+        id (int): The State id of the class
+        name (str): The State name of the class
+        cities (:obj:`City`): The Cities belongs to State
+
     """
-    __tablename__ = "states"
+    __tablename__ = 'states'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)

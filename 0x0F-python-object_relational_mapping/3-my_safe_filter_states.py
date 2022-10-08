@@ -1,37 +1,42 @@
 #!/usr/bin/python3
 """
-Module 3-my_safe_filter_states
-Takes 4 arguments: username, password and database name to connect to the mysql
-serve running on localhost port 3306, and the name of
-the state being looked for.
+This script takes in an argument and
+displays all values in the states
+where `name` matches the argument
+from the database `hbtn_0e_0_usa`.
+
+This time the script is safe from
+MySQL injections!
 """
 
-from sys import argv
 import MySQLdb
+from sys import argv
 
-
-def main():
+if __name__ == '__main__':
     """
-    Program starts here. Lists states with matching name passed as
-    the 4th argument from the database hbtn_0e_0_usa
+    Access to the database and get the states
+    from the database.
     """
-    db = MySQLdb.connect(host="localhost", port=3306,
-                         user=argv[1], passwd=argv[2], db=argv[3])
-    c = db.cursor()
 
-    #  Stop program if SQL injection risky characters are
-    #  in the state name argument
-    state_name = argv[4]
-    escape_strings = ["\x00", "\n", "\r", "\\", "'", '\"', r"\xla"]
-    for i in escape_strings:
-        if i in state_name:
-            return
+    db = MySQLdb.connect(host="localhost", user=argv[1], port=3306,
+                         passwd=argv[2], db=argv[3])
 
-    c.execute(
-        "SELECT * FROM states WHERE name='{}' ORDER BY id".format(argv[4]))
-    for i in c.fetchall():
-        print(i)
+    with db.cursor() as cur:
+        cur.execute("""
+            SELECT
+                *
+            FROM
+                states
+            WHERE
+                name LIKE BINARY %(name)s
+            ORDER BY
+                states.id ASC
+        """, {
+            'name': argv[4]
+        })
 
+        rows = cur.fetchall()
 
-if __name__ == "__main__":
-    main()
+    if rows is not None:
+        for row in rows:
+            print(row)

@@ -1,34 +1,32 @@
 #!/usr/bin/python3
-"""Module 14-model_city_fetch_by_state
-Prints all City objects from the database hbtn_03_14_usa that's
-passed as an argument"""
+"""
+This script prints all City objects
+from the database `hbtn_0e_14_usa`.
+"""
+
 from sys import argv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from model_state import Base, State
 from model_city import City
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-
-def main():
-    """Program starts here.
-    Loads the database hbtn_0e_14_usa and loads all the City rows
-    in the table cities. Then each City is printed, with its state's name.
+if __name__ == "__main__":
     """
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'.format(
-        argv[1], argv[2], argv[3]), pool_pre_ping=True)
+    Access to the database and get the cities
+    from the database.
+    """
 
-    Base.metadata.create_all(engine)
+    db_uri = 'mysql+mysqldb://{}:{}@localhost:3306/{}'.format(
+        argv[1], argv[2], argv[3])
+    engine = create_engine(db_uri)
     Session = sessionmaker(bind=engine)
+
     session = Session()
 
-    all_cities = session.query(City).order_by('id').all()
+    query = session.query(City, State).join(State)
 
-    for city in all_cities:
-        city_state = session.query(State).get(city.state_id)
-        print("{}: ({}) {}".format(city_state.name, city.id, city.name))
+    for _c, _s in query.all():
+        print("{}: ({:d}) {}".format(_s.name, _c.id, _c.name))
 
+    session.commit()
     session.close()
-
-
-if __name__ == '__main__':
-    main()
